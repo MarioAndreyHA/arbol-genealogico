@@ -26,85 +26,73 @@
             color: white;
         }
 
-        /* --- MAGIA CSS PARA EL ÁRBOL JERÁRQUICO --- */
-        .tree-container {
+        /* --- ESTILOS PARA EL MOTOR D3.JS --- */
+        #contenedorArbol {
             width: 100%;
-            overflow-x: auto;
-            padding-bottom: 20px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .tree ul {
-            padding-top: 20px; 
-            position: relative;
-            transition: all 0.5s;
-            display: flex;
-            padding-left: 0;
-        }
-
-        .tree li {
-            float: left; text-align: center;
-            list-style-type: none;
-            position: relative;
-            padding: 20px 5px 0 5px;
-            transition: all 0.5s;
-        }
-
-        .tree li::before, .tree li::after {
-            content: '';
-            position: absolute; top: 0; right: 50%;
-            border-top: 2px solid var(--color-acento);
-            width: 50%; height: 20px;
-        }
-        .tree li::after {
-            right: auto; left: 50%;
-            border-left: 2px solid var(--color-acento);
-        }
-
-        .tree li:only-child::after, .tree li:only-child::before {
-            display: none;
-        }
-        .tree li:only-child { padding-top: 0; }
-
-        .tree li:first-child::before, .tree li:last-child::after {
-            border: 0 none;
-        }
-        .tree li:last-child::before {
-            border-right: 2px solid var(--color-acento);
-            border-radius: 0 5px 0 0;
-        }
-        .tree li:first-child::after {
-            border-radius: 5px 0 0 0;
-        }
-
-        .tree ul ul::before {
-            content: '';
-            position: absolute; top: 0; left: 50%;
-            border-left: 2px solid var(--color-acento);
-            width: 0; height: 20px;
-        }
-
-        .tree a {
-            border: 2px solid var(--color-acento);
-            padding: 15px 25px;
-            text-decoration: none;
-            color: var(--color-texto);
-            display: inline-block;
-            border-radius: 50px;
+            height: 600px; /* Altura del lienzo interactivo */
             background-color: white;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            min-width: 130px;
+            border-radius: 10px;
+            border: 2px dashed #bdc3c7;
+            overflow: hidden;
+            position: relative;
+            cursor: grab; /* Cursor de "agarrar" para mover el mapa */
+        }
+
+        #contenedorArbol:active {
+            cursor: grabbing;
+        }
+
+        /* Líneas que unen a la familia */
+        .link-hijo {
+            stroke: #27ae60; /* Verde para descendencia */
+            stroke-width: 3px;
+            stroke-opacity: 0.6;
+        }
+
+        .link-pareja {
+            stroke: #bdc3c7; /* Gris para parejas */
+            stroke-width: 4px;
+            stroke-dasharray: 5, 5; /* Línea punteada para diferenciar parejas */
+        }
+
+        /* Estilos de las bolitas (Nodos) */
+        .nodo-d3 circle {
+            stroke-width: 4px;
+            fill: white;
             cursor: pointer;
+            transition: transform 0.2s;
         }
 
-        .tree a:hover {
-            background-color: var(--color-acento);
-            color: white;
-            transform: scale(1.05);
+        .nodo-d3 circle:hover {
+            transform: scale(1.1);
         }
 
-        .tree a:hover small, .tree a:hover strong {
-            color: white !important;
+        .nodo-d3.hombre circle {
+            stroke: #3498db; /* Azul */
+        }
+
+        .nodo-d3.mujer circle {
+            stroke: #e74c3c; /* Rojo */
+        }
+
+        /* Texto debajo de las bolitas */
+        .nodo-d3 text {
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+            fill: var(--color-texto);
+            pointer-events: none;
+            text-shadow: 0px 2px 4px rgba(255,255,255,0.8);
+        }
+        .nodo-d3 text.parentesco {
+            font-size: 11px;
+            font-weight: normal;
+            fill: #7f8c8d;
+        }
+
+        /* Texto de las fechas en el mapa */
+        .nodo-d3 text.fechas {
+            font-size: 10px;
+            font-weight: normal;
+            fill: #2c3e50;
         }
