@@ -202,11 +202,15 @@ function dibujarArbolD3() {
 
     const g = svg.append("g");
 
+    const cardWidth = 160;
+    const cardHeight = 120;
+
     const simulation = d3.forceSimulation(nodes)
-        .force("link", d3.forceLink(links).id(d => d.id).distance(d => d.type === 'pareja' ? 40 : 120).strength(d => d.type === 'pareja' ? 1 : 0.5))
-        .force("charge", d3.forceManyBody().strength(d => d.isUnion ? -50 : -600)) 
+        .force("link", d3.forceLink(links).id(d => d.id).distance(d => d.type === 'pareja' ? 160 : 180).strength(d => d.type === 'pareja' ? 1 : 0.5))
+        .force("charge", d3.forceManyBody().strength(d => d.isUnion ? -50 : -1200)) 
+        .force("collide", d3.forceCollide().radius(d => d.isUnion ? 0 : 80).iterations(2)) 
         .force("center", d3.forceCenter(width / 2, height / 2))
-        .force("y", d3.forceY(d => (d.level * 180) - (height/4)).strength(0.8)) 
+        .force("y", d3.forceY(d => (d.level * 220) - (height/4)).strength(0.8)) 
         .force("x", d3.forceX(width / 2).strength(0.05));
 
     const link = g.append("g")
@@ -220,22 +224,35 @@ function dibujarArbolD3() {
         .selectAll("g")
         .data(nodes.filter(n => !n.isUnion)) 
         .join("g")
-        .attr("class", d => `nodo-d3 ${d.genero === 'F' ? 'mujer' : 'hombre'}`)
+        .attr("class", "nodo-d3")
         .call(drag(simulation))
-        .on("click", (event, d) => abrirModal(d.id));
+        .on("click", (event, d) => {
+            event.stopPropagation(); // Evita que el clic se confunda con arrastrar
+            abrirModal(d.id);
+        });
 
-    node.append("circle").attr("r", 25);
-    
-    node.append("text").attr("dy", "5").attr("text-anchor", "middle").text(d => d.genero === 'F' ? '👩' : '👨');
-    node.append("text").attr("dy", "42").attr("text-anchor", "middle").text(d => d.nombre);
-    node.append("text").attr("dy", "58").attr("text-anchor", "middle").attr("class", "parentesco").text(d => d.parentesco);
-    
-    // Aquí es donde se imprime el nuevo texto
-    node.append("text")
-        .attr("dy", "74")
-        .attr("text-anchor", "middle")
-        .attr("class", "fechas")
-        .text(d => calcularEdadTexto(d.fechaNacimiento, d.esFallecido, d.fechaFallecimiento));
+    // 🌟 MAGIA: Rectángulo transparente que atrapa perfectamente los clics
+    node.append("rect")
+        .attr("width", cardWidth)
+        .attr("height", cardHeight)
+        .attr("x", -cardWidth / 2) 
+        .attr("y", -cardHeight / 2)
+        .attr("fill", "transparent");
+
+    node.append("foreignObject")
+        .attr("width", cardWidth)
+        .attr("height", cardHeight)
+        .attr("x", -cardWidth / 2) 
+        .attr("y", -cardHeight / 2)
+        .style("pointer-events", "none") // Deja pasar el clic hacia el rectángulo transparente
+        .append("xhtml:div") 
+        .attr("class", d => `tarjeta-nodo ${d.genero === 'F' ? 'mujer' : 'hombre'}`)
+        .html(d => `
+            <div class="emoji">${d.genero === 'F' ? '👩' : '👨'}</div>
+            <div class="nombre" title="${d.nombre}">${d.nombre}</div>
+            <div class="parentesco">${d.parentesco}</div>
+            <div class="fechas">${calcularEdadTexto(d.fechaNacimiento, d.esFallecido, d.fechaFallecimiento)}</div>
+        `);
 
     const unionVisual = g.append("g")
         .selectAll("circle")
